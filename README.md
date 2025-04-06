@@ -1,6 +1,5 @@
 # GA4 Event Importer for Google Tag Manager
 
-![GA4 Event Importer](assets/ga4-event-importer.png)
 
 ## Table of Contents
 
