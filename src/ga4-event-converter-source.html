@@ -1,0 +1,96 @@
+// Import needed libraries
+const log = require('logToConsole');
+const JSON = require('JSON');
+//const callInWindow = require('callInWindow');
+const copyFromWindow = require('copyFromWindow');
+//const copyFromDataLayer = require('copyFromDataLayer');
+const templateStorage = require('templateStorage');
+const createQueue = require('createQueue');
+
+// Get tag configuration
+//const dl = data.dl ? data.dl : 'dataLayer';
+const dl = 'dataLayer';
+const dataLayerPush = createQueue(dl);
+const waiter = data.waiter ? data.waiter : '';
+const whitelist = data.whitelist ? data.whitelist : [];
+const blacklist = data.blacklist ? data.blacklist : [];
+
+// Help Function for Event Match
+var isEventInList = function(eventName, list) {
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].event === eventName) {
+      var modelKey = typeof list[i].modelKey=='string' ? list[i].modelKey : 'modelKey';
+      if (!modelKey) modelKey = 'modelKey';
+      return modelKey;
+    }
+  }
+  return null;
+};
+
+// Initialization
+var dl_count = templateStorage.getItem('ga4dlcount');
+if (typeof dl_count!='number') dl_count = 0;
+var waiter_found = !waiter ? true : templateStorage.getItem('ga4wtfound');
+if (!waiter_found) waiter_found = false;
+var savedEvents = templateStorage.getItem('ga4wtevents');
+if (typeof savedEvents!='object' || !savedEvents) savedEvents = [];
+//dataLayerPush({'event':'Test2','fuellstand':'100%'});
+var datalayer = copyFromWindow(dl);
+//log('info','DataLayer',datalayer);
+if (typeof datalayer!='object' || !datalayer) {
+  log('error', 'dataLayer not defined (Type: '+typeof datalayer+').');
+  data.gtmOnFailure();
+}
+var dl_length = datalayer.length;
+if (typeof dl_length!='number' || !dl_length) {
+  log('error', 'dataLayer is empty');
+  data.gtmOnFailure();
+}
+var dl_founds = {};
+
+// Walk through dataLayer and search matching Events
+for (var i=dl_count; i<=dl_length; i++) {
+  dl_count = i;
+  //log('info','DL Event ('+dl_count+'/'+dl_length+')',JSON.parse(JSON.stringify(obj)));
+  var obj = datalayer[i];
+  // Check for waiter Event
+  if (waiter && !waiter_found && typeof obj=='object' && obj && typeof obj.event=='string' && obj.event==waiter) {
+    //log('info','Waiter',JSON.parse(JSON.stringify(obj)));
+    for (var j=0; j<=savedEvents.length; j++) {
+      dataLayerPush(savedEvents[j]);
+    }
+    savedEvents = [];
+    templateStorage.setItem('ga4wtevents',savedEvents);
+    waiter_found = true;
+    templateStorage.setItem('ga4wtfound', waiter_found);
+  }
+  // Check for an Array
+  if (typeof obj=='object' && typeof obj.length=='number' && obj.length>=3 && obj[0]==='event') {
+    //log('info','FOUND! ('+i+') '+typeof obj,JSON.parse(JSON.stringify({o:obj})));
+    var ev_name = obj[1];
+    var ev_model = JSON.parse(JSON.stringify(obj[2]));
+    var ev = { event:ev_name, eventModel:null };
+    if (whitelist) {
+      var findEv = isEventInList(ev_name,whitelist);
+      if (findEv) {
+        ev[findEv] = ev_model;
+        if (waiter_found) { dataLayerPush(ev); } else { savedEvents.push(ev); }
+      }
+    } else if (blacklist) {
+      ev.model = ev_model;
+      var findEv = isEventInList(ev_name,whitelist);
+      if (!findEv) {
+        if (waiter_found) { dataLayerPush(ev); } else { savedEvents.push(ev); }
+      }
+    } else {
+      ev.model = ev_model;
+      if (waiter_found) { dataLayerPush(ev); } else { savedEvents.push(ev); }
+    }
+  }
+}
+templateStorage.setItem('ga4dlcount', dl_count);
+templateStorage.setItem('ga4wtfound', waiter_found);
+templateStorage.setItem('ga4wtevents',savedEvents);
+
+// Call data.gtmOnSuccess when the tag is finished.
+data.gtmOnSuccess();
