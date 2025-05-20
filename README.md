@@ -12,7 +12,7 @@
 
 ## What is it for? - General Information
 
-This is a Google Tag Manager Template (client-side) to look for GA4-formated Tags (these with the eventModel Object) and send's them as normal-formated GTM dataLayer Events.<br />
+This is a Google Tag Manager Template (client-side) to look for GA4-formatted Tags (these with the eventModel Object) and send's them as normal-formatted GTM dataLayer Events.<br />
 I created it because the handling with GA4 dataLayer Events is very frustrating, especially if you need these Events for other services than GA4.
 
 ---
@@ -36,7 +36,7 @@ Save the imported Template:
 
 ### (2) Create the Trigger
 
-If you want, you can trigger this Importer to all Events. It will look only for GA4-formated Events and ignores all the others.
+If you want, you can trigger this Importer to all Events. It will look only for GA4-formatted Events and ignores all the others.
 It also remembers what events have been (re)sent. It saves also what dataLayer event the last was and starts from there if it is new-triggered.
 If you want to make your life easy, create a trigger like this:
 ![All Event Trigger](assets/trigger-all-events.png)
@@ -105,6 +105,9 @@ Please contact me if you found problems or have improvements:
 ---
 
 ## Changelog
+
+- Version 1.0.1, *20.05.2025*
+  - Spelling corrections
 
 - Version 1.0, *06.04.2025*
   - Initial Version of GA4 Event Importer
