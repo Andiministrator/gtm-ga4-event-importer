@@ -2,6 +2,8 @@ homepage: "https://github.com/Andiministrator/gtm-ga4-event-importer"
 documentation: "https://github.com/Andiministrator/gtm-ga4-event-importer/blob/main/README.md"
 versions:
   # Latest version
+  - sha: cab2940c7d4b74562a3ada10542ff745af580eda
+    changeNotes: v1.0.1 just spelling corrections
+  # Older versions
   - sha: c16b3f12db9ed05d0c5ddf0f39c7ef3ddbf50242
     changeNotes: v1.0 Initial Release
-    # Older versions
